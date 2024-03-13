@@ -42,3 +42,11 @@ def inner_coords(point, N):
 def rpop(v: np.ndarray):
     rindex = r.randint(0, len(v) - 1)
     return v[rindex], np.delete(v, rindex, 0)
+
+# Approx Heaviside step function
+def F(t, sharpness = 1000):
+    return 0.5 * (1 + np.tanh(sharpness * t))
+
+# Approx Heaviside step function
+def H(x):
+    return np.where(x >= 0, 1, 0)
