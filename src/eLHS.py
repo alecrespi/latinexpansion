@@ -8,7 +8,7 @@ import src.utils as utils
 ## ----------------------------------------------------------------
 def eLHS(lhs: np.ndarray, M:int, fullGraded = True):
     N, P = lhs.shape
-    if(fullGraded and lhs_grader(lhs) != N):
+    if(fullGraded and grade(lhs) < 1.0):
         raise ValueError("Parameter `lhs` must be a proper full-graded LHS sample set.")
     
     # returning container
@@ -21,7 +21,7 @@ def eLHS(lhs: np.ndarray, M:int, fullGraded = True):
     
     mExpansion = sow(lhs, M)
     eLHS = utils.concat(lhs, mExpansion)
-    eGrade = lhs_grader(eLHS)
+    eGrade = grade(eLHS)
 
     devFlag = True
     if(devFlag or eGrade == N + M):
@@ -64,7 +64,7 @@ def trace(PeLHS: np.ndarray):
                     h[q, i, j] = int(1)
     return h
 
-def sudoku_identity(lhs: np.ndarray, verbose = True):
+def count_fingerprints(lhs: np.ndarray, verbose = True):
     '''
         Return auxiliary Yqj variable that counts the number of occurrences of 
         each sample Xij in q-th interval of the j-th dimension.
@@ -81,24 +81,41 @@ def sudoku_identity(lhs: np.ndarray, verbose = True):
             y[q, j] = (s if verbose else (1 if s > 0 else 0) )
     return y
 
+def section_complexity(lhs, n, j):
+    return np.sum(
+        [ 
+            1 if np.any(utils.H(lhs[:, j] - q/n) * utils.H((q+1)/n - lhs[:, j]) > 0, axis=None) else 0
+        for q in range(n) ]
+    )
 
-def lhs_grader(lhs: np.ndarray):
+
+def grade(lhs: np.ndarray, n = None, mode = 3):
     '''
+        TO UPDATE:
         Returns the sum-reduction y to a single value that
         represents the quality of the lhs.
     '''
-    y = sudoku_identity(lhs, verbose=False)
+    N, P = lhs.shape
+    y = count_fingerprints(lhs, verbose=False)
     # reducing y
-    grade = np.min([np.sum(y[:, s]) for s in range(y.shape[1])])
-    return grade
-
-
+    if mode == 1:
+        return np.sum([np.sum(y[:, s]) for s in range(y.shape[1])]) / (N * P)
+    elif mode == 2:
+        return np.min([np.sum(y[:, s]) for s in range(y.shape[1])]) / N
+    elif mode == 3:
+        n = n if n is not None else N   # n = n??N
+        return np.sum([
+            section_complexity(lhs, n, j) for j in range(P)
+        ]) / (n * P)
+    elif mode == 4:
+        n = n if n is not None else N   # n = n??N
+        return [section_complexity(lhs, n, j) for j in range(P)]
 
 ## ----------------------------------------------------------------
 ## ------------------------ ROUTINES ------------------------------
 ## ----------------------------------------------------------------
 # empty-extend the LHS sample set NxP to a (N+M)xP set
-def PartialeLHS(lhs: np.ndarray, M:int):
+def empty_expansion(lhs: np.ndarray, M:int):
     _, P = lhs.shape
     PeLHS = np.concatenate((lhs, [[None for _ in range(P)] for _ in range(M)]))
     return PeLHS
@@ -108,9 +125,9 @@ def sow(lhs: np.ndarray, M: int, scattering = False):
     N, P = lhs.shape
     LHS = LHSampler(d = P)  # should be parametrized (sharing one instance of LHS)
 
-    PeLHS = PartialeLHS(lhs, M)
+    PeLHS = empty_expansion(lhs, M)
     newSamples = np.zeros((M, P))
-    sdk = sudoku_identity(PeLHS)
+    sdk = count_fingerprints(PeLHS)
 
     # list of available dim-vacancies in PeLHS
     vacancies = [
