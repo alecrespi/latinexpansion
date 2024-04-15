@@ -1,0 +1,7 @@
+#TeXmaker
+*.pdf
+*.aux
+*.dvi
+*.log
+*.synctex.gz
+
