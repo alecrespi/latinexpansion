@@ -338,16 +338,24 @@ class SampleSet:
         return expandedSS
 
 #Test
-B1 = RegularBinningGrid(10, 2)
+B1 = RegularBinningGrid(370, 2)
 B2 = RegularBinningGrid(20, 2)
-B3 = RegularBinningGrid(17, 2)
+B3 = RegularBinningGrid(530, 2)
 
-ss = SampleSet(B1)
+
+BS, BF = B1, B3
+err = 1e-12
+
+ss = SampleSet(BS)
 ss.fill()
 
-elhs = ss.expand(B3)
+elhs = ss.expand(BF)
 
-ss.plot(save=True, filepath="./data/initial.png")
+# ss.plot(save=True, filepath="./data/initial.png")
 elhs.plot(save=True, filepath="./data/eLHS.png")
 
+
+print("GRADE PREDICTION")
+print("Initial Sample Set: ", ss.grade())
+print("Predicted: ", pr := ss.expanded_grade(BF), " | ", "✅" if abs(pr - elhs.grade()) <= err else "❌")
 
