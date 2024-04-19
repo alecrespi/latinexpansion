@@ -332,9 +332,6 @@ class SampleSet:
         # expansion sample set
         expansion: np.ndarray = SampleSet.__gen_local_lhs(M, genesys)
 
-        pp(self.samples)
-        pp(expansion)
-
         # final expanded set 
         expandedSS = SampleSet(RegularBinningGrid(N + M, P))   # Regular Binning Grid is temporary
         expandedSS.fill(np.concatenate((self.samples, expansion), axis=0))
