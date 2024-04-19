@@ -3,9 +3,10 @@ from matplotlib import pyplot as plt
 import numpy as np
 from math import floor
 import random as r
+from decimal import Decimal
 
 # 2D-only LHS plotter
-def plotLHS(lhs: np.ndarray, grid = False, highlight = False):
+def plotLHS(lhs: np.ndarray, grid: bool = False, highlight: bool = False, save: bool = False, filepath: str = None):
     N, P = lhs.shape
     if P != 2:
         return
@@ -29,6 +30,13 @@ def plotLHS(lhs: np.ndarray, grid = False, highlight = False):
                 plt.axhspan(qv/N, (qv+1)/N, facecolor='blue', alpha=0.15)
             except:
                 continue
+    if save and filepath is not None:
+        plt.savefig(filepath)
+    else:
+        plt.show()
+
+
+        
 
 # other utilities 
 def concat(a: np.ndarray, b:np.ndarray):
@@ -50,3 +58,10 @@ def F(t, sharpness = 1000):
 # Approx Heaviside step function
 def H(x):
     return np.where(x >= 0, 1, 0)
+
+# high precision difference
+def high_precision_difference(a: float, b: float, rounding_error = 30):
+    return round(
+        float(Decimal(str(a)) - Decimal(str(b))), 
+        rounding_error
+    )
