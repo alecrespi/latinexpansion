@@ -36,7 +36,7 @@ def plotLHS(lhs: np.ndarray, grid: bool = False, highlight: bool = False, save: 
         plt.show()
 
 
-        
+
 
 # other utilities 
 def concat(a: np.ndarray, b:np.ndarray):

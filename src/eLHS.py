@@ -1,7 +1,7 @@
 import numpy as np
 from typing import List
 from sortedcontainers import SortedSet
-from utils import high_precision_difference as hpdiff
+from src.utils import high_precision_difference as hpdiff
 from scipy.stats.qmc import LatinHypercube as LHSampler
 from scipy.spatial.distance import pdist
 from matplotlib import pyplot as plt
@@ -164,12 +164,22 @@ class RegularBinningGrid(BinningGrid):
         self.bins : List[RangeGroup] = [RangeGroup.Generator.regular(size) for _ in range(dimensions)]
 
 class SampleSet:
-    def __init__(self, binning: RegularBinningGrid):
-        self.binning = binning
-        self.nsamples = 0
-        self.samples = None
-        self.span = None
-        self.__p_grade = None
+    def __init__(self, nsamples = None, ndimensions = None, binning: RegularBinningGrid = None ):
+        if binning is None:
+            if nsamples is None or ndimensions is None:
+                raise ValueError("BinningGrid or nsample and ndimensions must be provided.")
+            self.binning = RegularBinningGrid(size=nsamples, dimensions=ndimensions)
+            self.nsamples = nsamples
+            self.samples = None
+            self.span = None
+            self.__p_grade = None
+            self.fill()
+        else:    
+            self.binning = binning
+            self.nsamples = 0
+            self.samples = None
+            self.span = None
+            self.__p_grade = None
     
     def fill(self, samples: np.ndarray = None):
         if samples is None:
@@ -337,25 +347,27 @@ class SampleSet:
         expandedSS.fill(np.concatenate((self.samples, expansion), axis=0))
         return expandedSS
 
-#Test
-B1 = RegularBinningGrid(370, 2)
-B2 = RegularBinningGrid(20, 2)
-B3 = RegularBinningGrid(530, 2)
+
+if __name__ == "__main__":
+    #Test
+    B1 = RegularBinningGrid(370, 2)
+    B2 = RegularBinningGrid(20, 2)
+    B3 = RegularBinningGrid(530, 2)
 
 
-BS, BF = B1, B3
-err = 1e-12
+    BS, BF = B1, B3
+    err = 1e-12
 
-ss = SampleSet(BS)
-ss.fill()
+    ss = SampleSet(BS)
+    ss.fill()
 
-elhs = ss.expand(BF)
+    elhs = ss.expand(BF)
 
-# ss.plot(save=True, filepath="./data/initial.png")
-elhs.plot(save=True, filepath="./data/eLHS.png")
+    # ss.plot(save=True, filepath="./data/initial.png")
+    elhs.plot(save=True, filepath="./data/eLHS.png")
 
 
-print("GRADE PREDICTION")
-print("Initial Sample Set: ", ss.grade())
-print("Predicted: ", pr := ss.expanded_grade(BF), " | ", "✅" if abs(pr - elhs.grade()) <= err else "❌")
+    print("GRADE PREDICTION")
+    print("Initial Sample Set: ", ss.grade())
+    print("Predicted: ", pr := ss.expanded_grade(BF), " | ", "✅" if abs(pr - elhs.grade()) <= err else "❌")
 
