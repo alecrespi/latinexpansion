@@ -2365,9 +2365,9 @@
     <bcf:citekey order="2" intorder="1">metropolis1987</bcf:citekey>
     <bcf:citekey order="3" intorder="1">colbourn2006</bcf:citekey>
     <bcf:citekey order="4" intorder="1">wiki_latin_square</bcf:citekey>
-    <bcf:citekey order="5" intorder="1">Sheikholeslami2017</bcf:citekey>
-    <bcf:citekey order="6" intorder="1">Sheikholeslami2017</bcf:citekey>
-    <bcf:citekey order="7" intorder="1">kong</bcf:citekey>
+    <bcf:citekey order="5" intorder="1">kong</bcf:citekey>
+    <bcf:citekey order="6" intorder="1">scipy_lhs</bcf:citekey>
+    <bcf:citekey order="7" intorder="1">scipy_lhs</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">

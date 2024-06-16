@@ -67,6 +67,18 @@
       \field{volume}{Special Issue}
       \field{year}{1987}
     \endentry
+    \entry{scipy_lhs}{url}{}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{labeltitlesource}{title}
+      \field{title}{Python 3.x - Scipy Documentation}
+      \verb{urlraw}
+      \verb docs.scipy.org/doc/scipy/reference/generated/scipy.stats.qmc.LatinHypercube.html
+      \endverb
+      \verb{url}
+      \verb docs.scipy.org/doc/scipy/reference/generated/scipy.stats.qmc.LatinHypercube.html
+      \endverb
+    \endentry
     \entry{kennard1969}{article}{}
       \name{author}{1}{}{%
         {{hash=cb0e8866425ac7f3142a03504b57bf1d}{%

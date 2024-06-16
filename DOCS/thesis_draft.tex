@@ -1,9 +1,37 @@
-\documentclass{article}
+\documentclass[12pt]{article}
 
-\usepackage{amsmath, amsthm, amsfonts, enumitem, graphicx, subcaption, cleveref, tabularx, xpatch}
+\usepackage{amsmath, amsthm, amsfonts, enumitem, graphicx, subcaption, cleveref, tabularx, xpatch, makeidx, setspace, mathptmx, titlesec, fancyhdr, etoolbox, tocloft}
 \usepackage[backend=biber,style=numeric]{biblatex}
+\usepackage[a4paper,top=3cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+
+\makeindex
 
 \addbibresource{src/bib/references.bib} 
+
+% TIPOGRAPHY
+% Page settings
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+
+% Line spacing
+\onehalfspacing
+
+% Paragraph indent
+\setlength{\parindent}{0.7cm}
+
+% Chapter and section titles
+\titleformat{\chapter}[display]{\bfseries\Huge}{\chaptername\ \thechapter}{20pt}{\bfseries\LARGE}
+\titleformat{\section}{\normalfont\Large\itshape}{\thesection}{1em}{}
+
+% Blockquote setup
+\newenvironment{blockquote}{\begin{quote}\onehalfspacing\fontsize{11}{13.2}\selectfont}{\end{quote}}
+
+% Footnotes
+\renewcommand{\footnotesize}{\fontsize{10}{12}\selectfont}
+\setlength{\footnotesep}{\baselineskip}
+\appto\footnotesize{\singlespacing}
+
 
 % CUSTOM COMMANDS
 \newcommand{\meqref}[1]{Eq.\ref{#1}}
@@ -92,7 +120,9 @@ According to the Handbook of Computational Designs (2nd edition, 2006) \ucite{co
         	\label{fig:latin_square_b}
         }
     \end{subfigure}
-    \caption{The images were kindly taken from \fancycite{Sheikholeslami2017}.}
+    \caption{The images were kindly taken [inserting sheikholeslami2017 throws an error?]
+    %\fancycite{sheikholeslami2017}. throws error
+    }
     \label{fig:latin_square}
 \end{figure}
 
@@ -135,7 +165,7 @@ where $\indfunc{}$ is the indicator function (see \mappendixref{appendix:indicat
 \subsection{Additional properties (working on)}
 \label{subsec:lhs_properties}
 In this section, the reader will deal with the idea of adding properties that could improve the accuracy - or the quality in other terms - of the surrogate model produced when the simulation is consumed.
-A well known issue with LHS designs is well depicted in \mfigref{fig:diagonal_sample_set}. It's obvious that it must be considered a poor simulation design for the most of the experiments. In fact, every really distributed implementation of LHS adds some peculiar properties to the design. We can highlight two superclasses of properties which LHS may be joined with: model-free properties and model-based properties.
+A well known issue with LHS designs is well depicted in \mfigref{fig:diagonal_poor_design}. It's obvious that it must be considered a poor simulation design for the most of the experiments. In fact, every really distributed implementation of LHS adds some peculiar properties to the design. We can highlight two superclasses of properties which LHS may be joined with: model-free properties and model-based properties.
 
 
 \begin{figure}[h]
@@ -144,9 +174,9 @@ A well known issue with LHS designs is well depicted in \mfigref{fig:diagonal_sa
         \centering
         \vtop{
         	\vspace{0pt}
-        	\includegraphics[width=\textwidth]{src/imgs/latin_square_letters_and_colours.png}
-        	\caption{sadcasdcasdc}
-        	\label{fig:latin_square_a}
+        	\includegraphics[width=\textwidth]{src/imgs/diagonal_poor_design.png}
+        	\caption{A poor Latin Hypercube sampling in 2 dimension despite it fulfill the one-projection rule. This experiment shows how simple LHS can be insufficient to achieve a good simulation.}
+        	\label{fig:diagonal_poor_design}
         }
     \end{subfigure}
     \hspace{0.05\textwidth}
@@ -154,12 +184,12 @@ A well known issue with LHS designs is well depicted in \mfigref{fig:diagonal_sa
         \centering
         \vtop{
         	\vspace{0pt}
-        	\includegraphics[width=\textwidth]{src/imgs/latin_square_skeleton.png}
-        	\caption{The skeleton of (a) Latin Square highlighting only the D (or PINK) symbol positions, it's easily noticeable how the positions does not overlap onto each other's row and column both}
-        	\label{fig:latin_square_b}
+        	\includegraphics[width=\textwidth]{src/imgs/good_design.png}
+        	\caption{This sampling has been generated using scipy LHSSampler utility class. The sample set bears random permutations of coordinates to lower the centered discrepancy. \ucite{scipy_lhs}}
+        	\label{fig:good_design}
         }
     \end{subfigure}
-	% \caption{}
+	\caption{}
     \label{fig:latin_square}
 \end{figure}
 
@@ -167,20 +197,20 @@ A well known issue with LHS designs is well depicted in \mfigref{fig:diagonal_sa
 \label{subsubsec:model_free_model_based}
 As the names may suggest, the latter implies the experimental design to involve some the peculiarities of the function to evaluate e.g. the shape that is expected, the initial or boundaries conditions, any well known critical region. Given that this approach is knowledge-driven, "What do we already know about?", can knock down pretty much the computational time required for the whole experiment with eventually high accuracy, but it can be equally easy that results may be deformed, based on assumptions that may prove wrong later, or make hard any further effort from other scientists to retake the experiment and confirm the results if the assumptions are not completely clear.
 On the other hand, the model-free is the formal way to depict a fully independent sampling of the parameter space from the experiment which it has been designed for. Because of not many criteria have been left, all of the properties in this class are based on inter-element relationships, which convey that for each of them has a heuristic meant to quantify how much each sample is well-placed among the others. The shorthand for such a class of criteria is \textit{space-filling properties}.
-Throughout this research, the predominant 
-Wrapping (a fancy property) with the one-projection property is a very good combination over many others computer simulation designs proposed, such as SOBOL
 
+Beside the many interesting considerations and suggestions that the model-based class of criteria has to offer to mathematicians, the space-filling properties has highly excited the experimenter community through the decades, producing creative and curious features that the samples could experience among each others. A very short list of the most representative ones is shown in \mtabref{tab:remarkable_criterions}. The most simple one is the [L2? phi di P?] criterion where the assumed metric is the Euler distance between each point in the hyperspace. The non-trivial issue comes along with the computational effort necessary to run through the search tree generated by the maximin (or minimax?) algorithm.
 
-\begin{table}[h!]
-	\label{tab:remarkable_criterions}
+By the way, the characteristic non-collapsing property of the LHS itself is actually a space-filling property. It ensures that, for example, the average distance between the consecutive projections of a group of 3 samples on the same axis is at least 1/2 distance units and at most 3/2 d.u.
+
+\begin{table}[h]
     \centering
-    \begin{tabularx}{\textwidth}{X X X X}
+    \begin{tabularx}{\textwidth}{X X X X} 
         \textbf{Authors} & \textbf{Year} & \textbf{Algorithm} & \textbf{Criteria} \\
         \hline
-        {Audze and Eglajs} & 1977 & Coordinates exchange & Potential energy \\
+        \text{Audze and Eglajs} & 1977 & \text{Coordinates exchange} & \text{Potential energy} \\
     \end{tabularx}
     \caption{ Riempio la tabella piano piano che leggo i paper. Ho visto che molte ricerche su LHS usano dare una cronologia sull'utilizzo dei criteri utilizzati throught history}
-    \label{tab:fullwidth}
+	\label{tab:remarkable_criterions}
 \end{table}
 
 \section{Expansion of a Latin Hypercube Sampling}
