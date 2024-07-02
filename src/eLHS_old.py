@@ -8,8 +8,8 @@ import src.utils as utils
 ## ----------------------------------------------------------------
 def eLHS(lhs: np.ndarray, M:int, fullGraded = True):
     N, P = lhs.shape
-    if(fullGraded and grade(lhs) < 1.0):
-        raise ValueError("Parameter `lhs` must be a proper full-graded LHS sample set.")
+    # if(fullGraded and grade(lhs) < 1.0):
+    #     raise ValueError("Parameter `lhs` must be a proper full-graded LHS sample set.")
     
     # returning container
     exp = {"F": None,
