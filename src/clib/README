@@ -1,0 +1,22 @@
+### you need pypa/build installed:
+
+pip install build
+
+### A directory that contains:
+
+- setup.py
+
+- yourmodule.c
+
+### Run:
+
+- python3 -m build "path/to/yourmoduledir/"
+
+- pip install module_name
+
+
+### fast build and deploy: 
+
+- alias rrr="python -m build ; pip uninstall latinexpansion -q -y ; pip install ./dist/latinexpansion-1.0.0-cp311-cp311-macosx_11_0_arm64.whl" 
+
+
