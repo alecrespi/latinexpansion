@@ -78,7 +78,7 @@ def usePlotSampleSet(
             points, c, s, m, highlight, highlight_c, highlight_a, 
             overlaps, overlaps_c, overlaps_a,
             voids, voids_c, voids_a
-        )], (points.shape[0] if Ntot == -1 else Ntot), grid=grid, grid_c=grid_c,
+        )], Ntot=(points.shape[0] if Ntot == -1 else Ntot), grid=grid, grid_c=grid_c,
             interval_labels=interval_labels, caption=caption,
             save=save, filepath=filepath, exclusive_labels=exclusive_labels)()
 
