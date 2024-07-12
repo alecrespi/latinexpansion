@@ -1,9 +1,39 @@
 \documentclass[12pt]{extarticle}
 
-\usepackage{amsmath, amsthm, amsfonts, enumitem, graphicx, subcaption, cleveref, tabularx, xpatch, imakeidx, setspace, mathptmx, titlesec, fancyhdr, etoolbox, tocloft, float, lipsum, amssymb, algorithm, algpseudocode}
+\usepackage{amsmath, amsthm, amsfonts, enumitem, graphicx, subcaption, cleveref, tabularx, xpatch, imakeidx, setspace, mathptmx, titlesec, fancyhdr, etoolbox, tocloft, lipsum, amssymb, algorithm, algpseudocode}
 \usepackage[font=small, singlelinecheck=off]{caption}
 \usepackage[backend=biber,style=numeric]{biblatex}
 \usepackage[a4paper,top=3cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\definecolor{mGreen}{rgb}{0,0.6,0}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundColour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{CStyle}{
+    backgroundcolor=\color{backgroundColour},   
+    commentstyle=\color{mGreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{mGray},
+    stringstyle=\color{mPurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,         
+    tabsize=2,
+    morekeywords={vacancies_list},
+    language=C
+}
+
 \makeindex
 
 \addbibresource{src/bib/references.bib}
@@ -95,9 +125,9 @@ A critical consideration when evaluating sampling methods is the trade-off betwe
 
 The most iconic sampling method for simulations is the pseudo-random sampling, lightened of every other criteria, namely the Monte Carlo Sampling or MCS (\fancycite{metropolis1987})  which has been proposed as the fundamental design of sampling methods. Quasi-Monte Carlo methods are a class of sampling algorithms based on Monte Carlo, indeed, but without a proper random drawing of sample points from the parameter space, instead, points are sequentially extracted in order to satisfy one or multiple criteria as best as the computational time required remains acceptable. Many criteria have been theorized and tested; each of them has a proper application context. An updated, summarized list of the most remarkable ones is shown and commented in \cref{tab:remarkable_criterions}. 
 
-In the scope of this matter, the authors will focus on the space-filling class of criteria and, particularly, on the one-projection property (also known as non-collapsing property or projective property); The former measures the quality of a sample set to be spread evenly across an hyperspace; the way space-filling is defined determines the final aspect of the sampling. On the same hand, a sample set, in $P$-dimensional space, admits the one-projection property if and only if the projections of the samples on a specific dimension fall into distinct intervals $I_i$. These $I_i$ intervals are fixed-width slices of the limited volume of parameter space taken into examination (e.g., an hyper-volume $[0,1)^N$) and the number of intervals is equal to the number of samples. So, the non-collapsing property prevents samples to fall into a busy area (which has been occupied by another sample). Furthermore, given that the number of intervals and the size of the sample set is equal, it does ensure there are no empty intervals across the parameter space. This property is widely known because it is the fundamental property which Latin Hypercube Sampling sets (LHS) are based on, topic of this paper.
+In the scope of this matter, the authors will focus on the space-filling class of criteria and, particularly, on the stratification procedure (also known as stratification or non-overlapping property); The former measures the quality of a sample set to be spread evenly across an hyperspace; the way space-filling is defined determines the final aspect of the sampling. On the same hand, a sample set, in $P$-dimensional space, admits the non-collapsing property if and only if the projections of the samples on a specific dimension fall into distinct intervals $I_i$. These $I_i$ intervals are fixed-width slices of the limited volume of parameter space taken into examination (e.g., an hyper-volume $[0,1)^N$) and the number of intervals is equal to the number of samples. So, the non-overlapping property prevents samples to fall into a busy area (which has been occupied by another sample). Furthermore, given that the number of intervals and the size of the sample set is equal, it does ensure there are no empty intervals across the parameter space. This property is widely known because it is the fundamental property which Latin Hypercube Sampling sets (LHS) are based on, topic of this paper.
 
-The authors used to work with sampling methods for simulation design, more likely LHS designs, in Astrophysics related experiments, such as simulating black hole binary mergers, which obviously requires a massive amount of computational time and many different parameters. The authors often experienced difficulties predicting how long it would take to run a full simulation given $N$ known sampling points in a $P$-dimensional space. This situation forces them to reserve more machine time on a shared company supercomputer for experiments than they really need. In order to better spend the reserved machine time left after the execution of the first run of sampling points, the authors designed an algorithm that adds up points to the initial LHS sample set using another one that has been drawn by the expansion algorithm in order to preserve the non-collapsing property of both sample sets together.\\
+The authors used to work with sampling methods for simulation design, more likely LHS designs, in Astrophysics related experiments, such as simulating black hole binary mergers, which obviously requires a massive amount of computational time and many different parameters. The authors often experienced difficulties predicting how long it would take to run a full simulation given $N$ known sampling points in a $P$-dimensional space. This situation forces them to reserve more machine time on a shared company supercomputer for experiments than they really need. In order to better spend the reserved machine time left after the execution of the first run of sampling points, the authors designed an algorithm that adds up points to the initial LHS sample set using another one that has been drawn by the expansion algorithm in order to preserve stratification of both sample sets together.\\
 Differently, they have experienced another issue related to the accuracy of the surrogate model, result of the simulation consumed after the LHS set. Sometimes, it just happens that the model doesn't satisfy an eventual accuracy threshold. Instead of throwing the simulation away and compute another one, they would like to expand the current initial set with additional points to help, the updated model, converging.
 
 The authors of this paper propose a algorithm called \textit{Expansion of an LHS} that, indeed, takes a already existing Latin Hypercube Sampling' sample set and propose a new set of points samples in the same parameter hyperspace which are suppose to maintain properties stability altogether.
@@ -138,7 +168,7 @@ According to the Handbook of Combinatorial Designs \ucite{colbourn2006}, the fir
     \label{fig:latin_square}
 \end{figure}
 
-In the scope of this paper, which doesn't aim to study combinatorial properties of $N$ symbols, we consider the placement of a sample set, which has to obey to the non-collapsing property. The symbols must occur in the matrix exactly $N$ times each. Instead of consider all symbols, we will look to a single one only. 
+In the scope of this paper, which doesn't aim to study combinatorial properties of $N$ symbols, we consider the placement of a sample set, which has to well stratifies the matrix. The symbols must occur in the matrix exactly $N$ times each. Instead of consider all symbols, we will look to a single one only. 
 
 Generally, we can speak of modern Latin Hypercube designs as the Euler's Latin Square's matrix concept (depicted as a grid in Fig.1b) but deeming a more complex multidimensional matrix. $N$ symbols are placed in the same way of earlier, multidimensionally talking: such that each one lies exactly once on each fiber (in literature, a "fiber" of a multidimensional matrix is the general term for a one-dimensional substructure in any dimension [or mode] of a tensor. e.g. In a 2D matrix, the fibers of the first and second dimensions are respectively "rows" and "columns").
 Moreover, LHS is no longer supposed to place symbols in matrices but, instead, put $N$ random samples on the hyperspace. The \textit{hyperspace} represents the examined multi-parameter space of the interested model, whereof each axis is associated with a different parameter.
@@ -201,7 +231,7 @@ gr(S) = \frac{\sum^P_{j=1}\sum^N_{q=1} min(\sum^N_{i=1}\indfunc{[\frac{q-1}{N}, 
 
 where $\indfunc{}$ is the indicator function (see \mappendixref{appendix:indicator_function}), the variable $q$ is another way to represent the sorted index matrix $A = \{a_{ij} = i \}$ for a more immediate comprehension. The $min$ operator states that the presence of several samples' projections in a specific interval $q$ doesn't weight up the whole term, which would be at most 1 even if multiple samples lie in $q$. Hence, the grade formula ignores the overlapping samples onto the same interval, hereafter only \textit{overlaps}.
 
-\subsection{Additional properties (Work in progress)}
+\subsection{Additional properties}
 \label{subsec:lhs_properties}
 In this section, the authors present some very important additional properties that could greatly improve the accuracy - or the quality in other terms - of the surrogate model produced by the consumed simulation.
 
@@ -215,7 +245,7 @@ A well known issue with LHS designs is well depicted in \mfigref{fig:diagonal_po
         \vtop{
         	\vspace{0pt}
         	\includegraphics[width=\textwidth]{src/imgs/diagonal_poor_design.png}
-        	\caption{A poor Latin Hypercube sampling in 2 dimension. Despite it fulfills the one-projection rule, it busts the experiment.\\ The diagonal sampling depicts how insufficient a pure LHS is to achieve a good simulation.}
+        	\caption{A poor Latin Hypercube sampling in 2 dimension. Despite it stratifies completely the square, it busts the experiment.\\ The diagonal sampling depicts how insufficient a pure LHS is to achieve a good simulation.}
         	\label{fig:diagonal_poor_design}
         }
     \end{subfigure}
@@ -239,9 +269,9 @@ A well known issue with LHS designs is well depicted in \mfigref{fig:diagonal_po
 As the names may suggest, the latter implies the experimental design to involve some the peculiarities of the function to evaluate e.g. the shape that is expected, the initial or boundaries conditions, any well known critical region. Given that this approach is knowledge-driven, "What do we already know about?", can knock down pretty much the computational time required for the whole experiment with eventually high accuracy, but it can be equally easy that results may be biased, based on assumptions that may prove wrong later, or make hard any further effort from other scientists to retake the experiment and confirm the results if the assumptions are not completely clear.
 On the other hand, the model-free is the formal way to depict a fully independent sampling of the parameter space from the experiment which it has been designed for. Because of not many criteria have been left, all of the properties in this class are based on inter-element relationships, which convey that for each of them has a heuristic meant to quantify how much each sample is well-placed among the others. The shorthand for such a class of criteria is \textit{space-filling properties}.
 
-Beside the many interesting considerations and suggestions that the model-based class of criteria has to offer to mathematicians, the space-filling properties has highly excited the experimenter community through the decades, producing creative and curious features that the samples could experience among each others. A very short list of the most representative ones is shown in \mtabref{tab:remarkable_criterions}. The most simple one is the [L2? phi di P?] criterion where the assumed metric is the Euler distance between each point in the hyperspace. The non-trivial issue comes along with the computational effort necessary to run through the search tree generated by the maximin (or minimax?) algorithm.
+Beside the many interesting considerations and suggestions that the model-based class of criteria has to offer to mathematicians, the space-filling properties has highly excited the experimenter community through the decades, producing creative and curious features that the samples could experience among each others. A summarized list of the most representative ones is shown in \cref{tab:remarkable_criterions}. The most trivial is the maximum minimum distance among points, so-called maximin distance criterion, and its typical counterpart that minimize the maximum hole, so-called maximin distance. The assumed metric is the $P$-grade Euclidean distance in the hyperspace.
 
-By the way, the characteristic non-collapsing property of the LHS itself is actually a space-filling property. It ensures that, for example, the average distance between the consecutive projections of a group of 3 samples on the same axis is at least 1/2 distance units and at most 3/2 d.u.
+By the way, the characteristic non-overlapping property of the LHS itself is actually a space-filling property. It ensures that, for example, the average distance between the consecutive projections of a group of 3 samples on the same axis is at least 1/2 distance units and at most 3/2 d.u.
 
 \begin{table}[h]
 	\label{tab:remarkable_criterions}
@@ -257,6 +287,12 @@ By the way, the characteristic non-collapsing property of the LHS itself is actu
 % TABLE ENTRIES TO ADD 
 % FROM THIS SENTENCE: The space-filling property of designs is measured by different criteria such as the maximin distance (Morris and Mitchell (1995)), and minimum energy (Joseph et al. (2015)).
 
+\subsubsection{On the optimal search tree}
+\label{subsubsec:search_trees}
+Despite the ease to describe a criteria for a set of elements, for instance the maximin distance, generating from random drawn a quasi-optimal solution is a nowdays a very serious issue to deal with. Actually, the algorithm should \textit{seek} for the best candidate among a broad pool of possibilities.
+
+In Computer Science, all the possible variants of a decision-demanding problem is mapped in a search tree, a graph-based structure that is explored by querying at each node which subpath should the algorithm undertake \ucite{jacobs2010}. Some trivial well-defined path search algorithm adopts a nice binary search tree solution which, in the worst setups, is solved in linear time $O(n)$\fancycite{daskalakis2007}. However, many other undeterministic, or let's say stochastic, algorithms are easily NP-complete problem, in their average-case. Such that is the synonym of computational-demanding algorithm for non-binary search trees. Some solution was proposed by John McCarthy, and then commented by \fancycite{knuth1975}, namely the Alpha-Beta pruning algorithm which, in short, when the algorithm deepen and evaluate the tree branches it overestimates the current solution found at some extent, in the end the algorithm cuts off a lot of branches deemed not useful anymore. Alpha and Beta are two hyper-parameters that ponders the current solution value.
+
 \section{Expansion of a Latin Hypercube Sampling}
 \label{sec:lhs_expansion}
 The LHS paradigm allows to implement several criteria over a rigorous grid, which forms the basis for the sequential creation of samples. Thus it's frequently utilized in engineering environments for surrogate manufacture of complex systems - see also \cref{subsec:lhs_properties}. For example, the LHS is used in hyperparameter tuning/optimization of Machine Learning models (\fancycite{koch2018}), environmental and water system analysis (\fancycite{sheikholeslami2017}), structural reliability analysis (\fancycite{olsson2003}).
@@ -269,10 +305,10 @@ Along this section, the authors used to refer several times to the expansion pro
 
 \subsection{The task of multistaging sampling}
 \label{subsec:multistage_task}
-The multistage approach raises concerns regarding the consistency of the one-projection property, which is valid for one-staged setups. \mfigref{fig:example_overlaps} depicts an experiment carried out upon scipy's $S \in LHS(N_1 = 10, P = 2)$ with samples displayed over its appropriate grid of $N_1$ intervals per dimension (\mfigref{fig:example_overlaps1}). The experiment consists in evaluating the behavior of the fixed $S$ sample set while the grid is "growing" - intended as creating a brand new grid with  a greater number of intervals - one by one for three times. 
+The multistage approach raises concerns regarding the consistency of the non-collapsing property, which is valid for one-staged setups. \mfigref{fig:example_overlaps} depicts an experiment carried out upon scipy's $S \in LHS(N_1 = 10, P = 2)$ with samples displayed over its appropriate grid of $N_1$ intervals per dimension (\mfigref{fig:example_overlaps1}). The experiment consists in evaluating the behavior of the fixed $S$ sample set while the grid is "growing" - intended as creating a brand new grid with  a greater number of intervals - one by one for three times. 
 Light grey-colored rows and columns are vacant, meaning that no projections are located there; rows and columns marked in red indicate the location of overlaps. After the first add-on (\mfigref{fig:example_overlaps2}), the grid shows two overlaps in row \#3 and in column number \#3 as well; the next stage (\mfigref{fig:example_overlaps3}) shows overlaps too, four in total, more than before. In the end, \mfigref{fig:example_overlaps4} has no overlaps at all. The distribution of occurrences of overlaps when the grid grows, depends on the initial sample set. The authors discuss about this topic later in \cref{sec:experiments} [$\longleftarrow$ be more specific].
 
-Regarding the LHS directive, the multistage experiment proposed shows that growing the interval grid could lead to a downgrade of the one-projection property in some extent (\mfigref{fig:example_overlaps2} and \mfigref{fig:example_overlaps3}) or give a new opportunity to fill the new empty space with a set of brand new samples without compromise the whole set optimality. 
+Regarding the LHS directive, the multistage experiment proposed shows that growing the interval grid could lead to downgrade the stratification in some extent (\mfigref{fig:example_overlaps2} and \mfigref{fig:example_overlaps3}) or give a new opportunity to fill the new empty space with a set of brand new samples without compromise the whole set optimality. 
 
 \begin{figure}[]
     \centering
@@ -356,11 +392,11 @@ gr_{max}(S, M) = 1 - \frac{M}{N+M}
 \end{equation}
 
 The \textit{initial set} $S \in MC(N, P)$ plotted over $P$ hypercube of $M+N$ intervals (per dimension) is called \textit{perfect expansion} if and only if $S$ expanded grade \meqref{eq:expanded_grade} is equal to the \textit{upper expanded grade limit} \meqref{eq:upper_limit_perfect_expansion}. \\
-As the name may suggest, the perfect expansion is the best possible candidate to produce an optimal non-collapsing sample set, so an LHS, as result of an expansion process described in \cref{subsubsec:general_expansion_case}.
+As the name may suggest, the perfect expansion is the best possible candidate to produce an optimal stratified sample set, so an LHS, as result of an expansion process described in \cref{subsubsec:general_expansion_case}.
 
 
 \subsection{The expansion process}
-The expansion task was initially handed at the very beginning of  \cref{subsec:multistage_task} as a evolutionary process which augments the $S$ starting sample set to a next-stage state with increased number of elements $M$, placed as better as it can to maximize criteria. However, we show in \cref{subsec:expansion_grade} that an expansion may demote the non-collapsing property of the resultant expanded set $Z$, which can be measured with the metric \meqref{eq:expanded_grade}. 
+The expansion task was initially handed at the very beginning of  \cref{subsec:multistage_task} as a evolutionary process which augments the $S$ starting sample set to a next-stage state with increased number of elements $M$, placed as better as it can to maximize criteria. However, we show in \cref{subsec:expansion_grade} that an expansion may demote the stratification of the resultant expanded set $Z$, which can be measured with the metric \meqref{eq:expanded_grade}. 
 In this section the authors propose how to place the new samples to achieve maximum "LHS-ness" over any $M$ expansion magnitude needed and introduce its potentialities for future researches - see more in \cref{sec:conclusions}.
 
 In first place, the proposal is delivered by studying the basic case of a perfect expansion in \cref{subsubsec:perfect_expansion_case}, then extend to the general case with any non-perfect expansion outcome.
@@ -379,7 +415,7 @@ First of all, it's necessary to trace each void's index. Here it comes into use 
 which should be element-wise permuted along each row to prevent \mfigref{fig:diagonal_poor_design} diagonalized situation.
 Then, the expansion set $E$ collects all the newly generated samples which are a distribution likewise \meqref{eq:rand_variable_Sij} but using $V_{ji}$. 
 
-In the end, the initial $S$ set is concatenated with expansion set $E$, originated from the voids of the $N+M$ growing grid, in a perfect expansion, that guarantees the fulfilling of the non-collapsing property (grade = 1). 
+In the end, the initial $S$ set is concatenated with expansion set $E$, originated from the voids of the $N+M$ growing grid, in a perfect expansion, that guarantees the fulfilling of maximum stratification (grade = 1). 
 
 A perfect expansion is a intuitively rare event: each sample has to avoid overlaps. This could eventually happen if two sample projections are spaced more than $\frac{1}{N+M}$ apart (new size of the intervals), But if they are closer, another condition has to be fulfilled: for any $M$ close enough to $N$, a \textit{critical span} exists across the \textit{i-th frontier} (see right after \meqref{eq:interval_index} for definition) - which shares its boundary with the next interval. The critical span is the intersection area between two neighbor samples intervals and the eventual interval raised across them (\mfigref{fig:critical_span2}). Given that LHS is not supposed to consider further additional points, it might happen that samples are placed in critical areas (after a $M$ growing step). An example of how can a couple of collapsing samples can occur is shown in \mfigref{fig:critical_span}. In the example, the first sample (in \mfigref{fig:critical_span2}) has been generated in the critical area that is the intersection between \textit{$\sim$2} and \#1 original interval. On its hand, the second sample lies upon the same critical area between \textit{$\sim$2} and \#2 original subspace. Hence, in the example the two samples are overlapped.
 
@@ -431,7 +467,7 @@ The case study implies that the creation of the expansion set i$E$ is not trivia
 The selection process of vacancies from an irregular $V$ voids set is described by a function $\sigma: N \times P, \; M \rightarrow P \times M$, namely \textit{perfectify} or \textit{vacancy reduction} (for the matter of giving names to anything). \\ 
 In this section, $\sigma$ reduce function trivially picks up $M$ intervals randomly per dimension and build up a permuted \meqref{eq:voids_matrix} vacancies matrix, which will be plugged into \meqref{eq:Sij_def} to produce an expansion set. 
 
-In other words, $\sigma$ criterion extracts from each j-th axis of the vacancies set $\textbf{V}_j$ a fixed $M$ number of elements which are going to compose the sub-hyperspace where $M$ samples will be placed using at least the non-collapsing property. The function $\sigma$ discards $O_j$ number of intervals (\meqref{eq:vjojm}), then creating an amount of voids of the same quantity. Hence, the number of overlaps $O_j$ determines the number of void intervals after the expansion is consumed.
+In other words, $\sigma$ criterion extracts from each j-th axis of the vacancies set $\textbf{V}_j$ a fixed $M$ number of elements which are going to compose the sub-hyperspace where $M$ samples will be placed using at least the non-overlapping property. The function $\sigma$ discards $O_j$ number of intervals (\meqref{eq:vjojm}), then creating an amount of voids of the same quantity. Hence, the number of overlaps $O_j$ determines the number of void intervals after the expansion is consumed.
 
 In this paper, the term \textit{quasi-LHS} refers to a non full-graded in-th stage of expansion descended from a proper LHS.
 
@@ -467,7 +503,7 @@ In this paper, the term \textit{quasi-LHS} refers to a non full-graded in-th sta
         	\vspace{0pt}
         	\includegraphics[width=\textwidth]{src/imgs/algo2.png}
         	\captionsetup{skip=0pt}
-        	\caption{Red intervals have two sample's projections in it and break the non-collapsing property.}
+        	\caption{Red intervals have two sample's projections in it and reduce the space stratification.}
         	\label{fig:algo3}
         }
     \end{subfigure}
@@ -492,7 +528,7 @@ In this paper, the term \textit{quasi-LHS} refers to a non full-graded in-th sta
 
 \subsubsection{The eLHS algorithm}
 \label{subsubsec:algorithm}
-The LHS expansion algorithm, namely \textit{eLHS}, push a starting Latin Hypercube $S$ to the next stage $Z = eLHS(S, M)$ that maximizes at most the non-collapsing property, along with other eventual criterions.
+The LHS expansion algorithm, namely \textit{eLHS}, pushes a starting Latin Hypercube $S$ to the next stage $Z = eLHS(S, M)$ by maximizing the hyperspace stratification at most, along with other eventual criterions.
 
 \begin{enumerate}
 \item Instance a $V$ vacancies set of $P$ tuples - which may have different lengths (\meqref{eq:voids_matrix}) because every dimension has an arbitrary number of voids (\meqref{eq:vjojm}). The list of all indexes of the $N+M$ grid is filtered accordingly with \meqref{eq:voids_matrix}. \\ 
@@ -518,7 +554,7 @@ The eLHS' implementers should achieve drawing optimal data from a discontinuous 
 	
 		\begin{enumerate}
 			\item[$\dagger$] If $\lambda_k = 1$ it is like drawing the very optimal point each iteration;
-			\item[$\dagger$] If $\lambda_k > 1$ the algorithm should yield a bunch of samples which satisfies or optimize any eventual sub-property. Definitely, the basic property that $\gamma_k$ has to satisfy is the non-collapsing property after being joined with $S \cup E$;
+			\item[$\dagger$] If $\lambda_k > 1$ the algorithm should yield a bunch of samples which satisfies or optimize any eventual sub-property. Definitely, the basic rule that $\gamma_k$ has to satisfy is the non-collapsing property after being joined with $S \cup E$;
 		\end{enumerate}
 	
 		\item pop out from $V^\prime$ the intervals where $gamma_k$ elements lie in;
@@ -545,38 +581,476 @@ The eLHS' implementers should achieve drawing optimal data from a discontinuous 
 \end{enumerate}
 
 
-%\begin{algorithm}
-%\caption{eLHS}
-%	\begin{algorithmic}[1]
-%		\Require $S$: matrix $N \times P$
-%		\Require $M$: int
-%		\Ensure matrix $M \times P$
-%		\Procedure{eLHS}{$S, M$}
-%			\State $V \gets array[P]$
-%			\State $A \gets array[P]$
-%			\For{$i = 1 \text{to} i = P$ and $j = 1 \text{to} j = N$}
-%        		\State $A_{ij} \gets (i-1)$
-%	   		\EndFor
-%	   	\EndProcedure
-%		
-		
-%	\end{algorithmic}
-%\end{algorithm}
-
-
-
 \section{Experiments}
 \label{sec:experiments}
+This section seeks to evaluate eLHS' sampling performance against other common options, beyond other use cases of the algorithm we have proposed. Specifically, we adopt the classic Monte-Carlo Sampling in the role of mark the performance limit of the other methods. In fact, MCS is widely deemed a very poor sampling procedure of an hyperspace \ucite{song2023}[memo: verifica se e' il paper giusto]. On the other way, Sobol' are a type of low-discrepancy sequences (for specific details, see \mappendixref{appendix:low_discrepancy}), moreover it was observed that Sobol' is optimal applied to sensitivity analysis simulation, rather than LHS \ucite{renardy2021}, and suitable for singular integrals evaluation \ucite{owen1998}. Scipy's implementation (\emph{scipy.stats.qmc.Sobol}) adopts a precomputed list of base direction numbers (\fancycite{sobol2011}). Furthermore, the Python class \emph{scipy.stats.qmc.LatinHypercube} - LHS sample set generator used in this paper - adopts low-discrepancy optimization criteria along with non-overlapping property. In the end, the Monte-Carlo generator used belongs to Numpy's \emph{numpy.random} utility package, the specific method is \emph{numpy.random.rand} .
+
+The experiments were designed to explore two different important sides of the expansion task, beyond the proposed algorithm:
+
+\begin{enumerate}
+\item[(1)] The expected performance $E$ expanded set, descendant of a LHS, with $N_{tot} = N_{init} + \sum{M_e} $ number of samples, should be at least \textit{comparable} with another different standard $S$ Latin Hypercube sample set with same number of samples $N_{tot}$ and built with comparable criteria. The actual performances of the  $E$ should be determined only by the effectiveness of the properties, and do not wane as the evolution proceeds. 
+
+\item[(2)] The expansion process gives the experimenters a new dimension for developing sampling algorithms. Govern the expansion stages may unleash inner properties and high simulation performances that are hard to replicate with monolithic techniques.
+
+\end{enumerate}
+
+Along the section, we will refer to the above sentences as Reason (1) and Reason (2).
+
+The evolution procedure that we used for every experiment that involves a growing number of samples is different for some experimental set. First of all, a eLHS sample set is deployed as an LHS in first place, then, at each new iteration a brand new expansion is provided, built on the very initial sample set. 
+A variant of this first experimental eLHS is considered. On this scope, the evolution does not descend from the initial LHS anymore, instead it is cumulative: at each iteration the samples generated during the previous stage works as new starting set. So, when the experiment advances, the samples are "Forwarded" to the next stage, namely \textit{eLHS-F}. In the writers opinion, while eLHS experimental set is the pure essence of how a sole expansion stage behaves, eLHS-F represents the very "applied use" of the algorithm: if, during a experiment, an expansion is needed most likely many more are coming along with it.\\
+Sobol' sequences, MC sets and for some LHS sets the expansion paradigm is ruled by adding a fixed number of random samples across the space, without any other specification. The reason for this trivial expansion process is introduced in \cref{sec:introduction}, briefly: we, the authors, aims to evolve an ongoing simulation which, for instance, has not achieved error requirements or we want only spend a limited computational time at some extent. Obviously, treating an expansion of Sobol', MC or LHS as a whole new simulation with brand new data does not fit with our perspective.
+
+We highlight that some experimental results are the arithmetic average of a fixed bunch others of equal parameters, so-called agents. This was done because of the high variance of the results detected during the experiments. Take into account that eLHS, eLHS-F and LHS are all based on the same initial Latin Hypercube sample set, then the respective expansion can be deemed as branch choices of the same sample set.
+
+The eLHS software used was implemented by the authors \cref{sec:code_implementation} following the guidelines in \cref{subsubsec:the_algorithm} whereof $\sigma$ functions randomly pops vacancies out the voids set. The optimal search criteria adopted is pure maximin distance of the whole expanded set. The optimal solution is pulled out from a pool of $K = 10$ acceptable expansions. Clearly, such an implementation is trivial and improvable, pondered over time complexity limits assumed and to embrace a real criterion augmentation sufficiently considered for the sake of this paper.
+
+\pagebreak
+\subsection{Experiment I - Stratification evolution}
+\label{subsec:exp1}
+An important topic of this research was about how to preserve stratification while the sampling evolves. To give an experimental observation about the trend of the grade metric function - again, which quantify the non-overlapping property - a sample set pool has been instanced in first place, then the sample is grown by a step factor equal to 5. 
+
+\mfigref{fig:exp1} depicts 3 scenario with increasing dimension number $P$ equals to 2, 5 and 100. On the horizontal axis varies the $M$ expansion number of samples, on the vertical axis is plotted the result of $gr(S, M)$ for each sample set. The initial sample sets' sample count is $N = 500$ . Whatever a curve touches the upper stratification heuristic limit 1.0 means that the expanded set at the given $M$ is a perfect expansion.
+
+In the scope of eLHS: for every scenario, we have confirmed experimentally what \meqref{eq:known_perfect_expansions} stress: for each multiple of $N$, the eLHS expansion of any $S$ is perfect. \\
+The curve also shows that growing the initial LHS with a relatively small $M$ drops the stratification index by approximately 17\% . This evidence tell us that expansion should be held by almost doubling the sample space, at least.
+
+Unexpectedly, eLHS plot shows evidence of other \textit{peculiar} values of $M$, not yet identified, that seem to optimize stratification locally. Those points occur in every LHS based experimental setup (eLHS, eLHS-F and LHS) at $M \simeq \frac{N}{2}$ and for all $P$ setup. Then, we observed other, less relevant peaks around $M \simeq \frac{N}{4}$ and $M \simeq 2N$. The behavior might suggest a fractal pattern in the grade distribution probability. Such a feature might be matter of further researches.
+
+eLHS-F behavior differs from eLHS because 5of what we stressed earlier: for small $M$s, it doesn't worth to expand at all. eLHS-F - that expands the previous expanded set by 5 at each iteration - drops suddenly to around 83\% of stratification and then it is keeping decrease until stationing at 81\% . In order to, underline the importance of the growing step, we will keep the non-optimal step size for eLHS-F next applications.
+
+Sobol' sequences and LHS samples are completely unable to prevent stratification collapse, approaching Monte-Carlo results, which poor performed the tests at every step and bottom limit the simulation. So, unguided Sobol' and LHS both will converge to a Monte-Carlo performance at a swift rate which even increase with dimension. \\ 
+Notice that Sobol' and LHS trend to converge. This could suggest how Scipy's produce both: LHS sets are generated from precomputed direction numbers as Sobol' do, then the software filter for those optimized sequences which are Latin Hypercube also. Then Scipy's might be LHS and quasi-Sobol' as well. Disrupting stratification by adding random points each step compromises the non-overlapping property, then the former LHS sets would drop as Sobol' sequences do. [so che non c'entra con il paper ma e' interessante fare reverse engineering, se consigliate di toglierlo, lo farò a malincuore]
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.6\textwidth}
+        \centering
+        \vtop{
+        	\vspace{0pt}
+        	\includegraphics[width=\textwidth]{../data/plots/exp1.1.P_2.png}
+        	\label{fig:exp1_1}
+        }
+    \end{subfigure}
+    \begin{subfigure}[b]{0.6\textwidth}
+        \centering
+        \vtop{
+        	\vspace{0pt}
+        	\includegraphics[width=\textwidth]{../data/plots/exp1.1.P_5.png}
+        	\label{fig:exp1_2}
+        }
+    \end{subfigure}
+    \begin{subfigure}[b]{0.6\textwidth}
+        \centering
+        \vtop{
+        	\vspace{0pt}
+        	\includegraphics[width=\textwidth]{../data/plots/exp1.1.P_100.png}
+        	\label{fig:exp1_3}
+        }
+    \end{subfigure}
+    \midcaption{}
+    \label{fig:exp1}
+\end{figure}
+
+
+\subsubsection{Stratification across dimensions}
+In \mfigref{fig:exp1_dimensions3} is plotted the same grade function depicted in \mfigref{fig:exp1} but considering all dimension $P$ between 2 and 50. Then it was sectioned 10 times at $M$ equally spaced. The projected sections are shown in \mfigref{fig:exp1_dimensions1} as long as their prime derivative \mfigref{fig:exp1_dimensions2}. 
+
+The experiment confirms that even for higher-dimensions sample sets, the mean of stratification at fixed $M$s is stationary, meanwhile the variance is effected.
+
+We can conclude that stratification is not effected from $P$ dimensions, but in higher-dimensions the grade is more stable.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \vtop{
+        	\vspace{0pt}
+        	\includegraphics[width=\textwidth]{../data/plots/exp1.3.M_section.P_2_to_50.png}
+        	\label{fig:exp1_dimensions1}
+        }
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \centering
+        \vtop{
+        	\vspace{0pt}
+        	\includegraphics[width=\textwidth]{../data/plots/exp1.3.M_section_prime.P_2_to_50.png}
+        	\label{fig:exp1_dimensions2}
+        }
+    \end{subfigure}
+    \begin{subfigure}[b]{0.3\textwidth}
+        \centering
+        \vtop{
+        	\vspace{0pt}
+        	\includegraphics[width=\textwidth]{../data/plots/exp1.3.P_2_to_50.png}
+        	\label{fig:exp1_dimensions2}
+        }
+    \end{subfigure}
+    \captionsetup{skip=0pt}
+    \caption{The function gr(LHS($N$, $P$), $M$) with $P$ and $M$ variables and $N = 500$ is shown in (c). 10 equally spaced sections were taken perpendicular to $M$ and parallel to $P$ (a).  Prime derivatives for each $M$ section in (b)}
+    \label{fig:exp1_dimensions}
+\end{figure}
+
+\subsection{Experiment II - [title?]}
+\label{subsec:exp2}
+The aim of this investigation is to test how much the implemented eLHS with its the criteria embedded - which is maximize the minimum distance between sample points - effects the whole sample set. The experiment wants to empathize how much good new samples are a key aspect to seriously take into account.
+
+The criteria involved are space-filling maximin distance and L2-star discrepancy (\mfigref{fig:exp2}). In first place, every sample set involved is optimized to have good discrepancy properties. Then, during the expansion process, both eLHS and eLHS-F bears new samples with space-filling properties, meanwhile both Sobol and LHS are expanded with Monte-Carlo sample points.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.6\textwidth}
+        \centering
+        \vtop{
+        	\vspace{0pt}
+        	\includegraphics[width=\textwidth]{../data/plots/exp4.1.mindistance.P_2.png}
+        	\label{fig:exp2_spacefilling}
+        }
+    \end{subfigure}
+    \begin{subfigure}[b]{0.6\textwidth}
+        \centering
+        \vtop{
+        	\vspace{0pt}
+        	\includegraphics[width=\textwidth]{../data/plots/exp4.2.discrepancy.P_2.png}
+        	\label{fig:exp2_lowdiscrepancy}
+        }
+    \end{subfigure}
+    \captionsetup{skip=0pt}
+    \midcaption{}
+    \label{fig:exp2}
+\end{figure}
+
+There is evidence that both eLHS and eLHS-F outperform the unguided expansion scheme by far regarding maximin distance and minimizing L2-star discrepancy. The characteristic step function is due to the initial sample sets, which have definite minimum distance of fixed points, hence the expanded sets cannot improve it. At least it cannot worsen it. The initial minimum distance represents the upper bound for space-filling optimization search. Despite what observed in what is stressed in \cref{subsec:exp1} about the demoting grade of eLHS-F with respect on the optimal eLHS, the space-filling property doesn't manifest any relevant disrupting, instead, the minimum distance metric is more stable than eLHS's. 
+
+On the other hand, Sobol' and LHS's discrepancy is outperformed as well, even if the eLHS software was not designed to improve that. Discrepancy performance is relevant in the subjcect of sensitivity analysis, topic of \cref{subsec:exp3}.
+
+This investigation shows the potential of expansion process on the every properties of a sample set. In the matter of Reason (2), the initial eLHS and eLHS-F have achieved a better discrepancy and space-filling properties than the optimal experimental setups Sobol' and standard LHS enriched with trivial Monte-Carlo sample points.
+
+
+\subsection{Experiment III - Monte Carlo Integration}
+\label{subsec:exp3}
+In the scope of this experiment, the Monte-Carlo integration adopts a quasi-MC sample distribution to compute numerically the integral of the multivariate function:
+%np.exp(-x**2 - y**2 - z**2) * np.sin(x) * np.cos(y) * np.sin(z)
+\begin{equation*}
+f(x,y,z) = e^{-x^2-y^2-z^2} \cdot sin(x) \cdot cos(y) \cdot sin(z)
+\end{equation*}
+on the integration interval $[0, 1]^3$ .
+For technical formulation of this technique and how it is applied to carry out the simulation, please refer to \mappendixref{appendix:montecarlo_integration} .
+
+The growing step is set to 50, the total number of samples ranges from 100 to 10000. The total number of agents is 10. 
+All experimental setups share the same initial LHS sets.
+
+\mfigref{fig:exp3_error} depicts absolute error evolution throughout simulation expansions. Instead, \mfigref{fig:exp3_time} shows the computational time measured at the end of every step. The experimental sets are eLHS-F and eLHS as usual and the Random-LHS distribution, which is a sample set pool pulls out a new sample set at each step. Random-LHS was adopted to simulate what the experimenter should expect if, for instance, the MC integration does not satisfy the maximum error requirement (or any other) and thus they decide to redeploy the whole simulation by creating a new sample set with increased sample size. This kind of expansion pool is in direct contrast with the assumption stated in \cref{sec:experiments}. That's because the below tests can justify Reason (1). 
+
+The high-precision result of the integral which the experimental outcomes have been compared to is yielded by \emph{scipy.integrate.nquad} adaptive multidimensional integration quadrature method. The resultant error is the absolute difference between the deployed MC Integration over the handed sample set and Scipy's result.
+
+\begin{figure}[H]
+    \centering
+    \vtop{
+        \vspace{0pt}
+       	\includegraphics[width=0.8\textwidth]{../data/plots/exp2.mcaccuracy.N_100_to_10000.v2.png}
+    }
+    \captionsetup{skip=0pt}
+    \midcaption{}
+    \label{fig:exp3_error}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \vtop{
+        \vspace{0pt}
+       	\includegraphics[width=0.8\textwidth]{../data/plots/exp2.mctime.N_100_to_10000.v2.png}
+    }
+    \captionsetup{skip=0pt}
+    \midcaption{The experiment was ran on a single unit Macbook Air (2020), CPU/GPU: Silicon M1}
+    \label{fig:exp3_time}
+\end{figure}
+
+The discrepancy in the earlier stages of evolution between eLHS and eLHS-F is justified by the Monte-Carlo integration's high variance predictions. Hence, pulling out new samples each step likewise could error variance. On the other hand, eLHS keeps the error rate comparable to Random-LHS.\\
+By stressing this, we have fulfilled Reason (1) requirements: eLHS and LHS are yet comparable and, in this specific case study, the former outperforms the latter.
+
+eLHS-F close perform the other ones but never exceeding them, the reason is linked to the observation in \cref{subsec:exp1}. In the first-stage, the fixed step expansion size (50) is equal to the 50\% of the initial sample size (100); on the second-stage, the ratio $\frac{M}{N}$ drops to 33\%, then 25\%, 20\% etc. So, stratification consistency does not hold as well as it should do. However, accuracy performances trade-offs with execution time.
+
+On the computational time, the authors achieved a so less execution effort using eLHS-F because the experimental setup is affected by the numerical Monte-Carlo integration next-step (\meqref{eq:mc_next_step}).
+
+
+\section{Code implementation}
+\label{sec:code_implementation}
+In this section, the code implementation of eLHS algorithm and grade function is shown and commented. 
+
+The interface language is Python 3.1 and later versions, widely used among scientist and lender of many very advanced mathematics libraries and optimized data structures. While dealing with large bunch of data, it is recommended to develop their own software solution using C/C++ programming languages. By default, Python exports API for porting C language, distributed with Python.h header file. Python APIs are not subject of this research, although it may happen that some code refer to owned Python data structures. The developed C module file for Python has been compiled using clang 15.0.0 (clang-1500.3.9.4) stable release. Furthermore, the flag \emph{-fno-vectorize} for clang compiler has been enable to cast loop vectorization on a data vector with variable width, decided on compile time by a cost model evaluation on computational resources available and cost of memory write outs \ucite{vectorization}.
+
+Future versions would implement parallelization with pthreads to optimize large data structure CRUD operations and concurrent search trees. We do also have assessed that the algorithm could be reorganized to better match Superword-Level-Parallelism (SPL) prerequisites which is incompatible with loop vectorization by LLVM project.
+
+The full project code is publicly available online and ruled by MIT License on my personal GitHub respository: \url{github.com/alecrespi/PLHS} . The package will be distributed with Python package manager \emph{pip} under the name of \emph{latinexpansion}.
+
+
+\subsection{eLHS - Expansion Algorithm}
+\label{subsec:eLHS_code}
+The software was implemented accordingly with guidelines in \cref{subsubsec:algorithm}.
+
+The Python function signature is:
+
+\begin{lstlisting}[language=Python]
+def eLHS(S:numpy.ndarray, M:int, throws:int = 10) -> numpy.ndarray
+\end{lstlisting}
+
+The \emph{vacancies{\_}list} struct type has been used to build the irregular set of tuples referred as $V$ throughout this paper. It tracks down how many vacancies has been found in a specific dimension. A tuple (array) of integers indexes of the same size is allocated. Definition:
+
+\begin{lstlisting}[style=CStyle]
+typedef struct vlist{
+    int len;
+    int* vacancies;
+} vacancies_list;
+\end{lstlisting}
+
+To enhance code readability, some pre-processor macros have been defined as well:
+
+\begin{lstlisting}[style=CStyle]
+// given q interval index, get interval lower bound
+#define I(q) (((double)q)/(N+M))     
+
+// given x sample, get its interval index
+#define Q(x) (floor(((double)x)*(N+M)))     
+
+// var swapping, do-while block triggers pre-processor 
+// multi-line rescripting
+#define SWAP(a, b) do { typeof(a) tmp = a; a = b; b = tmp; } while (0)  
+
+// given q interval index, generate a random sample in it 
+#define R(q) ((double)I(q) + ((double)rand()*I(1) / RAND_MAX))
+
+\end{lstlisting}
+
+The variable identifiers are
+\begin{enumerate}
+\item[] \emph{N, M, P} $\rightarrow$ number of samples in ss, number of additional points, number of dimensions. All strictly positive.
+
+\item[] \emph{ss} $\rightarrow$ shorthand for \textit{sample set}, $N \times P$ matrix of double;
+
+\item[] \emph{exp} $\rightarrow$ shorthand for \textit{expansion set}, $M \times P$ matrix of double;
+
+\item[] \emph{vs} $\rightarrow$ shorthand for \textit{vacancies set}, $P$-long array of \textit{vacancies{\_}list} structs;
+
+\item[] \emph{v{\_}prime} $\rightarrow$ the $V^\prime$ vacancies matrix, $M \times P$ matrix of integers;
+\end{enumerate}
+
+The C core body module of eLHS is given below:
+\begin{lstlisting}[style=CStyle]
+static PyObject* method_eLHS (...) {
+	// variable declaration block
+    double max_distance = 0.0;
+	// interface with Python.h API
+	...
+	// getting the whole vacancies 
+    vs = build_vacancies_matrix(ss, N, P, M);
+
+	/* try `throws` times to keep maximin distance optimal */
+    for(t = 0; t < throws; t++){
+        /* shuffle and subset vacancies set at each iteration */
+        v_prime = shuffle_subset_vacancies(vs, M, P);
+        
+        // sowing new points
+        for(i = 0; i < M; i++)
+            for(j = 0; j < P; j++)
+                exp[i][j] = R(v_prime[j][i]);
+        
+	    // maximin distance search 
+        if(throws != 1){
+            dist = min_distance(ss, exp, N, M, P);
+            if(dist > max_distance)
+                max_distance = dist;
+        }
+    }
+    ...
+	// returning exp PyObject* data struct as eLHS result
+}
+\end{lstlisting}
+
+
+The core module in C is then subdivided in the following 4 macro routines. 
+
+\subsubsection{build{\_}vacancies{\_}matrix}
+The first step of the algorithm is to track down every vacant interval in every dimension. Thus, 
+
+\begin{lstlisting}[style=CStyle]
+vacancies_list* build_vacancies_matrix
+	(double** ss, int N, int P, int M)
+{
+    vacancies_list *vs;
+    int i, j, q;
+
+    vs = (vacancies_list*)malloc(P*sizeof(vacancies_list));
+
+    for(j = 0; j < P; j++){
+        int vindex = 0;
+        int *vptr = (int*) malloc((N+M)*sizeof(int));
+        // masks vptr elements if they are void 
+        bool *vmask = (bool*) malloc((N+M)*sizeof(bool));   
+        // set mask to false 
+        memset(vmask, 0, (N + M) * sizeof(bool));           
+        
+        // map down the busy intervals (busy is TRUE)
+        for(i = 0; i < N; i++)
+            vmask[(int) Q(ss[i][j])] = true;
+        
+        // mask the interval indexes to gather only voids
+        for(q = 0; q < N+M; q++){
+            // if q is a void, then add it
+            if(!vmask[q])   
+                vptr[vindex++] = q;
+        }
+
+        // realloc voids sequence to fit void numbers
+        vptr = (int*) realloc(vptr, vindex * sizeof(int));
+        if(!vptr)   return NULL;
+        // build up vacancies_list entry
+        vs[j].len = vindex;
+        vs[j].vacancies = vptr;
+    }
+    return vs;
+}
+\end{lstlisting}
+
+
+\subsubsection{shuffle{\_}subset{\_}vacancies}
+Shuffle the vacancies set \emph{vs} and apply the $\sigma$ criterion chosen. The implementation permutes randomly each vacancy{\_}list array attribute and then cut off the exceeding intervals. 
+
+\begin{lstlisting}[style=CStyle]
+int **shuffle_subset_vacancies
+	(vacancies_list* vs, int M, int P)
+{
+    if(!vs || M == 0) return NULL;
+    int **v_prime = (int **)malloc(P * sizeof(int*));
+
+    /* for each dimension, shuffle and reshape the vacancy list to a regular size M */
+    for(int j = 0; j < P; j++){
+        if(!vs[j].vacancies || !vs[j].len)
+            return NULL;
+
+        int *vptr = (int*)malloc(vs[j].len * sizeof(int));
+        /* copy elements to preserve data integrity for further steps*/
+        for(int i = 0; i < vs[j].len; i++)
+            vptr[i] = vs[j].vacancies[i];
+
+        /* shuffling all items */
+        for (int i = vs[j].len; i > 0; i--){ 
+            // generate a random index that ranges from [0, M-1]
+            int r = rand() % i;     
+            SWAP(vptr[i-1], vptr[r]);
+        }
+        /* truncate the list to M */
+        vptr = (int *)realloc(vptr, M*sizeof(int)); 
+        v_prime[j] = vptr;
+    }
+    return v_prime;
+}
+\end{lstlisting}
+
+\subsubsection{sample{\_}sowing}
+Based on $V^\prime$ shuffled matrix, generate a brand new expansion set and store it in \emph{exp} matrix. This routine is hard coded in the eLHS module body. 
+
+\begin{lstlisting}[style=CStyle]
+// in the declaration block
+// allocate exp result matrix 
+exp = (double **)malloc(M * sizeof(double*));
+for(i = 0; i < M; i++)
+	exp[i] = (double *)malloc(P * sizeof(double));
 ...
+//sample_sowing
+/* for each new sample */
+for(i = 0; i < M; i++)
+	/* for each dimension */
+	for(j = 0; j < P; j++)
+		/* generate sample in the random interval v_prime[j][i] */
+		exp[i][j] = R(v_prime[j][i]);
+...	
+\end{lstlisting}
+
+\subsubsection{minimax{\_}search}
+
+\begin{lstlisting}[style=CStyle]
+// in the declaration block
+double max_distance = 0.0, dist;
+...
+while (condition){
+	...
+	dist = min_distance(ss, exp, N, M, P);
+	if(dist > max_distance)
+		max_distance = dist;
+	...
+}
+
+// somewhere else in function initialization section
+/* computes minimum distance among every points, only expansion points are considered beacuse initial points have fixed minimum distance */
+double min_distance
+(double **ss, double **exp, int N, int M, int P)
+{
+    int i, k;
+    /* __DBL_MAX__ will force the first minimum if-condition */
+    double min = __DBL_MAX__, dist = 0.0;
+    
+    for(k = 0; k < M; k++){
+    	/* search minimum distance among expansion points and initial points */
+        for(i = 0; i < N; i++){
+        	// P-grade euclidean distance as metric
+            dist = euclid(exp[k], ss[i], P);
+            if( dist < min ) min = dist;
+        }
+    	/* search minimum distance among expansion points themselves */
+        for(i = k + 1; i < M; i++){
+            dist = euclid(exp[k], exp[i], P);
+            if( dist < min ) min = dist;
+        }
+    }
+    return min;
+}
+\end{lstlisting}
+
+\subsection{Grade function - Stratification heuristic}
+\label{subsec:grade_code}
+The grade heuristic software formally implements \meqref{eq:expanded_grade} definition. It was deployed to carry out \cref{subsec:exp1} experiment I simulations.
+
+The Python signature for this method is:
+\begin{lstlisting}[style=CStyle]
+def grade(S:numpy.ndarray, M:int = 0) -> float
+\end{lstlisting}
+
+The function's body follows:
+\begin{lstlisting}[style=CStyle]
+...
+double gr = 0;
+// compute grade
+for(j = 0; j < P; j++){
+    for(q = 0; q < N+M; q++){
+        for(i = 0; i < N; i++){
+        	/* check if sample's projection lies in q interval */
+            if(I(q) <= ss[i][j] && ss[i][j] < I(q+1)){
+                gr += 1;
+                /* if found, break the samples' loop (simulates `min` operand of the formula */
+                break;
+            }
+        }
+    }
+}
+gr /= (double) P * (N + M);
+...
+// return PyObject* representing `gr` result
+\end{lstlisting}
 
 \section{Conclusions}
 \label{sec:conclusions}
-...
+The expansion process has demonstrated high capabilities of enhancing an ongoing experiment thanks to the evolutionary analysis that the authors consumed. The number of additional points are a crucial variable to ponder: too low $M$s annihilate the original LHS stratification properties across the space, higher $M$s, roughly above $N$ which cause a doubling of the sample size, the accuracy increases and stratification is almost kept but fails on the computational limits requested.
+
+Expansion may be ruled by a optimization criteria which differs from the ones which the initial sample set was built on. This heterogeneous mixture of properties can be crucial in solving complex simulation dynamically, by improving a different criteria on the need. Experiment II (\cref{subsec:exp2}) experimental setups shows this flexibility.
+
+The research has also proposed the grade and expanded grade heuristics, along with their properties, which demonstrated to be useful tool for quantify stratification in a Monte-Carlo sampling. 
+
+Research might turn toward analysis of the probabilistic distribution of the grade stratification index, explaining the optimal stratification spikes observed in Experiment I (\cref{subsec:exp1}), and looks for an optimal pool of Latin Hypercube sample sets which are best to expand.
+
 
 \section{APPENDIX}
 \subsection{Indicator function}
 \label{appendix:indicator_function}
-The indicator function $\indfunc{}$ of a set \textbf{A} indicates whether the input belongs  to $A$ or not, specifically:
+The indicator function $\indfunc{}$ of a set \textbf{A} indicates whether the input belongs to $A$ or not, specifically:
 \begin{equation}
 \label{eq:indicator_function}
 \indfunc{A}(x) := 
@@ -601,10 +1075,9 @@ So the indicator function can be also produced:
 \indfunc{[a,b)}(x) = H(x - a) \cdot H(b - x)
 \end{equation}
 
-\subsection{Perfect expansion case: Multiples of N}
+\subsection{Known perfect expansion explained: Multiples of N}
 \label{appendix:N_multiples}
-Given $S \in LHS(N, P)$ set with $N, P \in \mathbb{N}$ respectively number of samples and dimensions, by definition (\meqref{eq:grade_of_lhs}), has maximum grade. Experimentally, it has been observed that the only well-known perfect expansions (maximum expanded grade \meqref{eq:expanded_grade}) of $S$ are those which the $M$ increment of the sample space is a multiple of $N$. 
-[cita figura di evoluzione del grado in Experiments section]
+Given $S \in LHS(N, P)$ set with $N, P \in \mathbb{N}$ respectively number of samples and dimensions, by definition (\meqref{eq:grade_of_lhs}), has maximum grade. Experimentally, it has been observed that the only well-known perfect expansions (maximum expanded grade \meqref{eq:expanded_grade}) of $S$ are those which the $M$ increment of the sample space is a multiple of $N$ (\fancycite{falcone2023}). Experimental evidences are depicted in \mfigref{fig:exp1}.
 
 The reason of this behavior is linked to the unique distribution characteristic that intervals the $M = K \cdot N$ growing grid and the initial $S$' grid share: the former, actually, sections - with abuse of notation - \emph{perfectly} the latter's intervals space. \textsuperscript{(*)} By considering the same amount of samples $N$ for both situations, we can state that the sum of the shares along any dimension of the regridded set is equal to the initial's one, which is equal to $N$.\\
 Let's stress out the grade and expanded grade equations:
@@ -639,19 +1112,35 @@ gr(S, K \cdot N) = \frac{1}{K+1} = 1 - \frac{K \cdot N}{(K+1) \cdot N} = gr_{max
 
 Hence, any $S$ expansion of $K \cdot N$ magnitude has maximum expanded grade, which makes them \textit{perfect expansions} by definition.
 
+\subsection{Monte-Carlo Integration}
+\label{appendix:montecarlo_integration}
+Monte-Carlo Integration is a powerful numerical integration technique widely adopted in engineering and physics. It is deployed in high-dimensional spaces where traditional methods become too much computational demanding and the trade-off between computational time and estimating gain become infeasible. Basically, this is a stochastic method where $N$ points are randomly sampled in a parameter space, a so-called Monte-Carlo Sampling. 
 
-%\section*{DRAFTBOX}
-%In this paper, authors have used different notable sampling methods for comparison purposes, here follows each of them along with a brief not of they prominent characteristics: \\
-%• Sobol' sequence as low-discrepancy sequence, when the percentage of a sequence's points that fall into an arbitrary set $Z$ is nearly proportionate to the measure of $Z$, the sequence so-called low-discrepancy;\\
-%• ...
-%\\
-%\\
-%
-%- Talk about problems with space-filling, search trees ecc.
-%
-%-  Granularity ? Discrepancy
-%
-%- PLHS? no, I suppose 
+Given a $f(\bar{x})$ of $P$ parameters, the integral:
+\begin{equation*}
+I = \int{\Omega}f(\bar{x})d\bar{x}
+\end{equation*}
+is approximated by the Monte-Carlo integral:
+\begin{equation*}
+I \simeq \frac{V}{N} \cdot \sum^N_i{f(\bar{x}_i)}
+\end{equation*}
+
+If two quasi-MC sample sets are involved, let's say $X$ and $Y$ of $N_1$ and $N_2$ sample size respectively, the integral take the form:
+\begin{equation*}
+I = \frac{V}{N_1 + N_2} \cdot \sum^{N_1 + N_2}_i{f(\bar{x}_i)}
+\end{equation*}
+If $I_1$ integral computed for $X$ is known, then to compute the estimated $I$ is only necessary to compute for $Y$ and combine both using:
+\begin{equation}
+\label{eq:mc_next_step}
+I = \frac{N_1}{N_1 + N_2} \cdot I_1 + \frac{V}{N_1 + N_2}\sum^{N_2}_{i=N_1}{f(\bar{x}_i)}
+\end{equation}
+
+\subsection{Low-Discrepancy sequences}
+\label{appendix:low_discrepancy}
+Low-discrepancy sequences are a class of quasi-MC sampling methods which adopt a discrepancy minimization criteria, a measure of the deviation of the distribution of sample points from uniformity. One commonly used metric for evaluating this uniformity is the L2-star discrepancy, which quantifies how well the sample points cover the integration domain.
+
+Sobol’ sequences are a type of low-discrepancy sequence, developed by \fancycite{sobol1967}, that provides a highly uniform distribution of points in multi-dimensional spaces. They are particularly effective in numerical integration and sensitivity analysis. The construction of Sobol’ sequences involves the use of direction numbers and primitive polynomials to achieve a uniform spread of points \ucite{dick2010}. 
+
 
 \pagebreak
 \printbibliography

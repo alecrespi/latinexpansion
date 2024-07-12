@@ -1,0 +1,3 @@
+FROM [Monte Carlo and variance reduction methods for structural reliability analysis_ A comprehensive review ]
+READ section 4.5 Stratified and Latin hypercube sampling
+ABOUT A variety of practical problems, such as corroded pipelines [3] and plate buckling [338], have been examined employing Latin hypercube sampling, whereas wing box structural model [420], carbon dioxide storage problem [391], and the flood and the nuclear reactor pressure vessel models [262] by stratified sampling. Moreover, various structural reliability problems are investigated in [274] in comparison between Latin hypercube sampling and Monte Carlo simulation with impor- tance sampling.
