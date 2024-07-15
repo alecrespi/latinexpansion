@@ -1,4 +1,5 @@
 # latinexpansion: Expanded Latin Hypercube Sampling
+[![DOI](https://zenodo.org/badge/759794094.svg)](https://zenodo.org/doi/10.5281/zenodo.12745236)
 
 ## Overview
 
