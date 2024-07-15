@@ -1,0 +1,13 @@
+.DS_Store
+
+#TeXmaker
+*.aux
+*.dvi
+*.log
+*.synctex.gz
+*.bbl
+*.bcf
+*.blg
+*.idx
+*.run.xml
+*.toc

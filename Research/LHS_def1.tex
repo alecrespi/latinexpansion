@@ -1,0 +1,167 @@
+\documentclass{article}
+
+\usepackage{amsmath, amsthm, amsfonts, enumitem}
+
+% Document starts here
+\begin{document}
+
+\title{Latin Hypercube Sampling}
+\author{Alessandro C.}
+\date{\today}
+\maketitle
+
+\begin{abstract}
+This paper aims to define a formal form of the Latin Hypercube Sampling (LHS) and the relative expansion procedure (eLHS), finally proposing an "expansion's grade" a-priori formula . The proposed approach is expressed through Set Theory.
+\end{abstract}
+
+%\otimes \subset \geq \leq > < \sum^N_{i=0} \{\} | \parallel \frac{1}{2} x_{ij}^2 \$ \in \forall \exists \mathbb{N}  \mathbb{Z} \mathbb{R} \qquad
+
+\section{Space Binning}
+\subsection{Range Group}
+We define $A$ as a ordered sequence of $N$ couples of real numbers between 0 and 1 that delimit a continuous interval. As follows:
+\begin{equation}
+A = \langle\;(low_q, up_q) \in[0,1]^2 : low_q < up_q \leq (low_{q+1}\;??\;1), \forall q \in [1,N] \cap \mathbb{N}\;\rangle
+\end{equation}
+\begin{footnotesize}
+The operator ?? is called \textit{nullish} and it returns the right-hand if the left-hand is not defined, left-hand is returned otherwise.
+\end{footnotesize}
+\\
+\textit{N.B:}
+\begin{equation}
+|| A ||  = N
+\end{equation}
+We'll refer to a Range Set of cardinality $N$ as an \textit{N-Ranged Group}, also we'll call a couple $(low_q, up_q) \in A$ as a \textit{$bin_q$ of A}. Let's use the following format: 
+\begin{equation*}
+A[N]
+\end{equation*}
+
+\subsubsection{Regularity of Range Groups}
+Given $A[N]$ N-Ranged Group, it is said to be \textit{regular} iff:
+\begin{equation}
+up_q - low_q = \frac{1}{N} \; , \; \forall (low_q, up_q) \in A
+\end{equation}
+It's deductible from (3) that:
+\begin{equation*}
+low_1 = 0 , up_N = 1
+\end{equation*}
+Furthermore, if $A_1$ and $A_2$ are two regular N-Ranged Groups then: 
+\begin{equation}
+A_1 = A_2
+\end{equation}
+
+\subsection{Binning Grid}
+Given $P$ number of \{$A_j$\} N-Ranged Groups, let's say that $B$ is a \textit{Binning Grid} if : 
+\begin{equation}
+B = A_1 \otimes A_2 \otimes \ldots \otimes A_P
+\end{equation}
+Conventionally, we'll address to the j-th Range Group of $B$ with $B_j$ . \\
+If every component of \{$A_j$\} is regular, following (4) we can simply say:
+\begin{equation*}
+B = A[N]^P \; , \; A = A_1 = A_2 = \ldots = A_P
+\end{equation*}
+
+\subsection{Sample Set Space \$}
+Let's define the Space $\$$ that contains the "\textit{Sample Set} S of size N in P dimensions":
+\begin{equation*}
+S = \{x_{ij}\}\in \$(A[N]^P) \subset M(N, P) 
+\end{equation*}
+s.t.: 
+\begin{equation} 
+\forall i \in [1,N] \cap \mathbb{N}, \forall j \in [1, P] \cap \mathbb{N} : xij \in [0,1]
+\end{equation}
+We'll refer to each element of $\{x_i\}$ - rows of S - as "\textit{i-th sample of S}".\\
+We'll refer to each element of $\{x^j\}$ - columns of S - as "\textit{projection of S on j-th axis}".
+
+
+\section{Latin Hypercube Sampling}
+\subsection{LHS}
+Given $B = A[N]^P$ regular Binning Grid, $\{x_{ij}\} \in \$(B)$ matrix and H(x) Heaviside step function, if:
+\begin{equation}
+\forall j = [1, P] \cap \mathbb{N} :
+\sum^N_{i=1} H(x_{ij} - low) * H(up - x_{ij}) = 1 \; , \; \forall (low, up) \in B_j
+\end{equation}
+then ${x_{ij}}$ is a \textit{Latin Hypercube Sample set} of size N and binning B, denoted:
+\begin{equation}
+\{x_{ij}\} \in LHS(N, B) \subset \$(B)
+\end{equation}
+\begin{scriptsize}
+The property specified at (7) is called \textit{one-projection property}.
+\end{scriptsize}
+
+\subsection{Grade of a Sample Set}
+Given a Sample Set $S = \{x_{ij}\} \in M(N, P)$, we can compute an index that measures how much the $S$ is close to achieve the one-projection property given a specific $B = A[Q]^P$ regular Binning Grid. As follows:
+\begin{equation}
+gr(S, B) = \frac{\sum^P_{j=1}\sum^Q_{q=1}min(\sum^N_{i=0} H(x_{ij} - low_{jq}) \cdot H(up_{jq} - x_{ij}), 1)}{Q \cdot P}
+\end{equation}
+This quantity lies between 0 - when S' grade approaches 0, it tends to have less overlaps - and 1.\\
+The $S$ is a Latin Hypercube Sample Set on Binning B iff it has maximum grade: 
+\begin{equation}
+S \in LHS(N, B) \;\Leftrightarrow\; gr(S, B) = 1
+\end{equation}
+
+\subsection{Expanded Sample Set}
+Given $S = \{x_{ij}\} \in LHS(N, A[N]^P)$ and $M \in \mathbb{N}$ number of add-ons;
+
+\begin{itemize}[label=$\bullet$]
+\item 	
+	Let U[N + M] be an Range Group, define:
+	\begin{equation}
+	C = U^P
+	\end{equation}
+	that represents the new Binning Grid on S by adding M new intervals.
+\item
+	Introduce $V_j$ set, composed of all intervals $(low, up)$ which has no $x_{ij}$ placed in it - so called \textit{"Voids"} - for each j-th dimension:
+	\begin{equation}
+	V_j = \{(low_{jq}, up_{jq}) \in C_j : \sum^N_{i=1} H(x_{ij} - low_{jq}) \cdot H(up_{jq} - x_{ij}) = 0 , \forall q \in [1, N+M]\cap\mathbb{N}\}
+	\end{equation}
+	The number of voids per dimension is:
+	\begin{equation*}
+	|| V_j || \geq M
+	\end{equation*}
+	
+\item 
+	Build a Binning Grid $W$ composed of $W_j$ subsets of $V_j$ s.t.:
+	\begin{equation*}
+	\forall j \in [1, P]\cap\mathbb{N} \;,\; W_j \subseteq V_j : || W_j || =  M
+	\end{equation*}
+	\begin{equation}
+	W = W_1 \otimes ... \otimes W_P 
+	\end{equation}
+	We'll say that $W$ is the \textit{mask} of $C$ given $S$. 
+
+\item Finally, set the Sample Set $E = \{y_{ij}\} \in LHS(M, W)$ called \textit{"expansion set"}. By merging $S$ and $E$ we can allocate an expanded Sample Set $Z$:
+	\begin{equation*}
+	Z = \{x_{1j} \: ... \: x_{Nj}\:,\: y_{1j} \: ... \: y_{Mj}\}
+	\end{equation*}
+\end{itemize}
+\subsubsection{Expanded LHS}
+Given $Z = \{x_{1j} \: ... \: x_{Nj}\:,\: y_{1j} \: ... \: y_{Mj}\}$ expanded Sample Set - for sake of clarity - its grade is given by:
+\begin{equation}
+gr(\{x_{1j} \: ... \: x_{Nj}\:,\: y_{1j} \: ... \: y_{Mj}\}, C) \leq 1
+\end{equation}
+
+\subsubsection{Perfect Expansion}
+Given $Z = \{x_{1j} \: ... \: x_{Nj}\:,\: y_{1j} \: ... \: y_{Mj}\}$ expanded Sample Set, let $E = \{y_{ij}\}$ be its expansion; then E is said to be a \textit{Perfect expansion} iff:
+\begin{equation}
+gr(Z, C) = 1
+\end{equation}
+which it leads us to conclude that:
+\begin{equation}
+Z \in LHS(N + M, C)
+\end{equation}
+
+\subsubsection{Expanded Grade Prediction}
+\textit{Theorem}\; Given $S = \{x_{ij}\}$ Sample Set on $A^P$ regular Binning Grid, let $Z$ be the expanded Sample Set of $S$ (of M samples) on Binning Grid $C$. \\
+We can compute the grade of $Z$ on $C$ \textit{a-priori} using the following formula:
+\begin{equation}
+gr(Z, C) = 1 - \frac{\sum^P_{j=1} \sum^{N-1}_{i=1} H(\frac{\lceil x_{ij}(N+M) \rceil}{N+M} - x_{(i+1)j})}{P(N+M)}
+\end{equation}
+\textit{Proof}\; (Work in progress)
+\begin{itemize}[label=$\bullet$]
+\item Let $E \in LHS(M, W)$ be the expansion set of $Z$, with $W$ mask of $C$. \\
+Considering that $E$ has been allocated on a Binning Grid $W$ 
+
+\end{itemize}
+
+
+\end{document}

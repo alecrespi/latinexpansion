@@ -1,4 +1,4 @@
-# import numpy
+import numpy
 from distutils.core import setup, Extension
 
 def main():
@@ -10,7 +10,7 @@ def main():
                 Extension(
                   "latinexpansion", 
                   ["latinexpansionmodule.c"],
-                  include_dirs=['/Users/alessandro/anaconda3/envs/lab/lib/python3.11/site-packages/numpy/core/include']
+                  include_dirs=[numpy.get_include()]
                 )])
 
 if __name__ == "__main__":

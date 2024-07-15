@@ -86,7 +86,7 @@ static PyObject* method_eLHS(PyObject* self, PyObject* args, PyObject* kwargs) {
     return result;
 }
 
-static PyObject* method_grade(PyObject* self, PyObject* args, PyObject* kwargs) {
+static PyObject* method_degree(PyObject* self, PyObject* args, PyObject* kwargs) {
     PyObject *matrix_object; // mandatory param
     int M = 0; // optional param
     static char *kwlist[] = {"sample_set", "M", NULL};
@@ -102,7 +102,7 @@ static PyObject* method_grade(PyObject* self, PyObject* args, PyObject* kwargs) 
 
     
     gr = 0;
-    // COMPUTE GRADE
+    // COMPUTE degree
     for(j = 0; j < P; j++){
         for(q = 0; q < N+M; q++){
             for(i = 0; i < N; i++){
@@ -312,7 +312,7 @@ void free_matrix(void **m, int N){
 // module functions to export
 static PyMethodDef latinexpansionMethods[] = {
     {"eLHS", (PyCFunction)method_eLHS, METH_VARARGS | METH_KEYWORDS, "Expansion algorithm for Latin Hypercube Sampling."},
-    {"grade", (PyCFunction)method_grade, METH_VARARGS | METH_KEYWORDS, "Non-collapsing property metric for sample set."},
+    {"degree", (PyCFunction)method_degree, METH_VARARGS | METH_KEYWORDS, "Non-collapsing property metric for sample set."},
     {NULL, NULL, 0, NULL}
 };
 
